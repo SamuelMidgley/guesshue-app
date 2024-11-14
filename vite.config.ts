@@ -1,24 +1,29 @@
-import { vitePlugin as remix } from "@remix-run/dev";
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+/// <reference types="vitest" />
 
-declare module "@remix-run/node" {
-  interface Future {
-    v3_singleFetch: true;
-  }
-}
+import path from 'path'
+import react from '@vitejs/plugin-react-swc'
+import { defineConfig } from 'vite'
+import { coverageConfigDefaults } from 'vitest/config'
 
 export default defineConfig({
-  plugins: [
-    remix({
-      future: {
-        v3_fetcherPersist: true,
-        v3_relativeSplatPath: true,
-        v3_throwAbortReason: true,
-        v3_singleFetch: true,
-        v3_lazyRouteDiscovery: true,
-      },
-    }),
-    tsconfigPaths(),
-  ],
-});
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./vitest-setup.ts'],
+    coverage: {
+      exclude: [
+        '**/main.tsx',
+        'postcss.config.js',
+        'tailwind.config.js',
+        '**/types/**',
+        ...coverageConfigDefaults.exclude,
+      ],
+    },
+  },
+})
